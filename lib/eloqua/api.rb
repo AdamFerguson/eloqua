@@ -99,11 +99,10 @@ module Eloqua
         @soap_error = nil
         @http_error = nil
 
-        request = client(type, &block).call(name) do |locals|
-          locals.message = soap_body if soap_body
-        end
-        response_errors(request)
-        request
+        response = client(type, &block).call(name, message: soap_body)
+
+        response_errors(response)
+        response
       end
 
       def response_errors(response)
