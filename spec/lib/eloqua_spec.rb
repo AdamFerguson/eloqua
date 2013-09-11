@@ -22,7 +22,7 @@ class EloquaSpecReceving
 end
 
 describe Eloqua do
-  
+
   context '#self.configure' do
     it 'should provide self' do
       save = nil
@@ -164,7 +164,6 @@ describe Eloqua do
       end
 
     end
-
 
   end
 

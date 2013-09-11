@@ -48,13 +48,18 @@ module Eloqua
       # 2. Data
       # 3. Email
       # 4. External Action
-      def client(type)
+      def client(type, &block)
         if(!Eloqua.user || !Eloqua.password)
           raise('Eloqua.user or Eloqua.password is not set see Eloqua.authenticate')
         end
-        clients[type] = Savon::Client.new do
-          wsdl.document = WSDL[type]
-          wsse.credentials Eloqua.user, Eloqua.password
+        clients[type] = Savon.client do |globals|
+          globals.wsdl WSDL[type]
+          globals.ssl_version :SSLv3
+          globals.namespaces({"xmlns:arr" => XML_NS_ARRAY})
+          globals.element_form_default :qualified
+          globals.wsse_auth [Eloqua.user, Eloqua.password]
+          globals.log false
+          instance_eval(&block) if block_given?
         end
       end
 
@@ -94,22 +99,16 @@ module Eloqua
         @soap_error = nil
         @http_error = nil
 
-        request = client(type).request(:wsdl, name) do
-          soap.namespaces["xmlns:arr"] = XML_NS_ARRAY
-          soap.element_form_default = :qualified
-          soap.body = soap_body if soap_body
-          instance_eval(&block) if block_given?
+        request = client(type, &block).call(name) do |locals|
+          locals.message = soap_body if soap_body
         end
         response_errors(request)
         request
       end
 
       def response_errors(response)
-        @soap_error = Eloqua::SoapError.new(response.http)
-        @http_error = Eloqua::HTTPError.new(response.http)
-
-        raise @soap_error if @soap_error.present?
-        raise @http_error if @http_error.present?
+        raise response.soap_fault if response.soap_fault?
+        raise response.http_error if response.http_error?
       end
 
     end

@@ -4,7 +4,7 @@ require 'eloqua/query'
 
 shared_examples_for "chainable query attribute that resets has_requested?" do |method, given|
   context "##{method}" do
-    
+
     it "should act like a getter when given no value" do
       subject.send(method).should == subject.instance_variable_get("@#{method}".to_sym)
     end
@@ -33,7 +33,7 @@ end
 
 describe Eloqua::Query do
   subject { klass.new(entity) }
-  let(:klass) { Eloqua::Query } 
+  let(:klass) { Eloqua::Query }
   let(:expected_query) { "C_EmailAddress='*' AND Date>'2011-04-20'" }
 
   let(:entity) do
@@ -144,7 +144,7 @@ describe Eloqua::Query do
   end
 
   context "#new" do
-    
+
     it 'should raise ArgumentError when given anything but an Eloqua::RemoteObject' do
       lambda { klass.new({}) }.should raise_exception(ArgumentError, /must provide an Eloqua::RemoteObject /)
     end
@@ -173,7 +173,7 @@ describe Eloqua::Query do
       it "should #fields should be nil" do
         subject.fields.should be_nil
       end
-      
+
       it "should not have requested yet" do
         subject.should_not have_requested
       end
@@ -217,7 +217,7 @@ describe Eloqua::Query do
       end
 
       context "after request" do
-        
+
         before do
           simple_request!
         end
@@ -254,7 +254,7 @@ describe Eloqua::Query do
 
   end
 
-  
+
 
   context "#build_query" do
     let(:entity) do
@@ -335,16 +335,16 @@ describe Eloqua::Query do
           xml.pageSize(200)
         end
       end
-      
+
       before do
         mock_eloqua_request(:query, :contact_email_one).\
           with(:service, :query, xml_body)
-        
+
         conditions!
 
         @result = subject.fields([:email]).request!
       end
-      
+
       # HINT- This is actually asserted above in the mock_eloqua_request
       it "should request that the results only return the C_EmailAddress field" do
        subject.should have_requested
@@ -355,7 +355,7 @@ describe Eloqua::Query do
     context "when rows are not found" do
       let(:xml_body) do
         api = subject.api
-        
+
         xml! do |xml|
           xml.eloquaType do
             xml.template!(:object_type, api.remote_type('Contact'))
@@ -365,7 +365,7 @@ describe Eloqua::Query do
           xml.pageSize(200)
         end
       end
-      
+
       before do
         mock_eloqua_request(:query, :contact_missing).\
             with(:service, :query, xml_body)
@@ -373,11 +373,11 @@ describe Eloqua::Query do
         conditions!
         subject.request!
       end
-      
+
       it "should an empty collection" do
         subject.collection.should be_empty
       end
-    
+
       it "should have requested" do
         subject.should have_requested
       end
@@ -392,7 +392,7 @@ describe Eloqua::Query do
     # The goal of this spec is to specify that no requests run
     # for at least a second after the first request.
     context "when making a request within the time of the request delay" do
-      
+
       it "should save the initial request time to query_started" do
         Timecop.freeze(Time.now) do
           simple_request!
@@ -422,7 +422,7 @@ describe Eloqua::Query do
             simple_request!(2)
           end
         end
-      
+
 
       end
     end
@@ -476,7 +476,7 @@ describe Eloqua::Query do
         @result.should be_an(Array)
         @result.first.should be_an(Eloqua::Entity)
       end
-        
+
     end
 
   end
@@ -504,7 +504,7 @@ describe Eloqua::Query do
 
 
   context "#each_page" do
-   
+
     let(:total) { 10 }
     let(:pages) { 5 }
     let(:limit) { 2 }
@@ -531,7 +531,7 @@ describe Eloqua::Query do
         last_page = 0
         subject.each_page do |record|
           @ids << record.id
-      
+
           if(last_page != subject.page)
             @pages << subject.page
             last_page = subject.page
@@ -551,7 +551,7 @@ describe Eloqua::Query do
     end
 
     context "when iterating through 5 out of 10 pages" do
-      
+
       let(:pages) { 10 }
 
       before do
@@ -572,7 +572,7 @@ describe Eloqua::Query do
         # Max of 5 pages
         subject.each_page(5) do |record|
           @ids << record.id
-      
+
           if(last_page != subject.page)
             @pages << subject.page
             last_page = subject.page
@@ -589,7 +589,7 @@ describe Eloqua::Query do
         @ids.should == expected_ids
       end
 
-    end  
+    end
 
   end
 

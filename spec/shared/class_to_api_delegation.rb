@@ -3,13 +3,13 @@
 # Entity or Asset spec's
 
 shared_examples_for "class level delegation of remote operations for" do |remote_group|
-  
+
   before do
     @remote_group = remote_group
   end
-  
+
   let(:email) { 'test@email.com' }
-  
+
   let(:dynamic_key) { ("dynamic_#{remote_group}".to_sym) }
   let(:field_key) { "#{remote_group}_fields".to_sym }
 

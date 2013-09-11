@@ -3,10 +3,9 @@ module Eloqua
     module Helper
 
       def soap_fixture(type, name, code = 200, headers = {})
-        config = Savon::Config.default
         body = Savon::Spec::Fixture.load(type, name)
         httpi = HTTPI::Response.new(code, headers, body)
-        Savon::SOAP::Response.new(config, httpi)
+        Savon::Response.new(httpi, Savon::GlobalOptions.new(:log => false), Savon::LocalOptions.new)
       end
 
       def mock_eloqua_request(type, name, code = 200, headers = {})
@@ -37,7 +36,7 @@ module Eloqua
           # with expectation
           flexmock(mocked_object).should_receive(:request).\
                               with(method, xml_body).\
-                              and_return(result).once      
+                              and_return(result).once
         end
       end
 

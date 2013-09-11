@@ -52,9 +52,9 @@ describe Eloqua::Api do
 
     context "when response given is a SOAP Fault" do
 
-      it "should raise an SoapError" do
+      it "should raise an SOAPFault" do
         mock_response(:query, :fault)
-        lambda { @response = subject.request(:service, :query) }.should raise_exception(Eloqua::SoapError)
+        lambda { @response = subject.request(:service, :query) }.should raise_exception(Savon::SOAPFault)
       end
 
     end
@@ -84,15 +84,11 @@ describe Eloqua::Api do
     end
 
     it "should return a savon instance of the given wsdl type" do
-      @connection.wsdl.instance_variable_get(:@document).should == subject::WSDL[:email]
+      @connection.globals[:wsdl].should == subject::WSDL[:email]
     end
 
-    it 'should have wsse username set to Eloqua.user constant' do
-      @connection.wsse.username.should == Eloqua.user
-    end
-
-    it 'should have wsse password set to Eloqua.password constant' do
-      @connection.wsse.password.should == Eloqua.password
+    it 'should have wsse_auth set to Eloqua.user and Eloqua.password' do
+      @connection.globals[:wsse_auth].should == [Eloqua.user, Eloqua.password]
     end
 
     it "should have an :arr namespace for arrays" do

@@ -12,7 +12,7 @@ Gem::Specification.new do |s|
   s.description = 'An Eloqua API Wrapper for Ruby'
   s.homepage = 'https://github.com/Vidyard/eloqua'
 
-  s.add_runtime_dependency 'savon', '~> 1.0'
+  s.add_runtime_dependency 'savon', '~> 2.0'
   s.add_runtime_dependency 'builder'
   s.add_runtime_dependency 'activemodel'
   s.add_runtime_dependency 'activesupport', '>= 3.0.6'

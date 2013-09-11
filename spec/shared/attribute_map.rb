@@ -1,5 +1,4 @@
 shared_examples_for "uses attribute map" do
-  
 
   context "#self.map_attribute" do
 

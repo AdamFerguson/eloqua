@@ -250,5 +250,4 @@ describe Eloqua::Builder::Xml do
 
   end
 
-
 end

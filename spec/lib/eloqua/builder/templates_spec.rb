@@ -62,7 +62,7 @@ describe Eloqua::Builder::Templates do
       end
 
     end
-    
+
   end
 
 end
