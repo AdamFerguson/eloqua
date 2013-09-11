@@ -7,7 +7,6 @@ module Eloqua
 
   class RemoteObject
 
-    include ActiveModel::MassAssignmentSecurity
     include ActiveModel::Naming
     include ActiveModel::Validations
     include ActiveModel::Conversion
@@ -22,7 +21,7 @@ module Eloqua
     include ActiveModel::Dirty
     include Eloqua::Helper::AttributeMap
 
-    DIRTY_PRIVATE_METHODS = [:attribute_was, :attribute_changed?, :attribute_change]
+    DIRTY_PRIVATE_METHODS = [:attribute_was, :attribute_changed?, :attribute_change, :attribute_will_change!]
     DIRTY_PRIVATE_METHODS.each {|method| public method }
 
     class_attribute :primary_key, :remote_type, :attribute_types, :remote_group
@@ -143,8 +142,7 @@ module Eloqua
     # @param [Hash] attributes to write
     # @param [Boolean] when true ignores assignment security
     # @return [Boolean] Result of the save
-    def update_attributes(attrs, ignore_security = false)
-      attrs = sanitize_for_mass_assignment(attrs) unless ignore_security
+    def update_attributes(attrs)
       attrs.each do |key, value|
         write_attribute(key, value)
       end

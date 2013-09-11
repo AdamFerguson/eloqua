@@ -36,40 +36,36 @@ module Eloqua
         end
 
          # This shoud always be used over directly editing attribute_map
-         def map(hash)
-           hash.each do |key, value|
-             value = value.to_sym
-             key = key.to_sym
+        def map(hash)
+          hash.each do |key, value|
+            value = value.to_sym
+            key = key.to_sym
 
-             attribute_map[key] = value
-             attribute_map_reverse[value] = key
+            attribute_map[key] = value
+            attribute_map_reverse[value] = key
           end
         end
 
       end
 
-      module InstanceMethods
+      def map_attributes(attributes)
+        @instance_reverse_keys ||= attribute_map_reverse.clone
+        results = {}.with_indifferent_access
 
-        def map_attributes(attributes)
-          @instance_reverse_keys ||= attribute_map_reverse.clone
-          results = {}.with_indifferent_access
-
-          attributes.each do |key, value|
-            formatted_key = attribute_map.fetch(key) { key.to_s.gsub(/^C_/, '').underscore }
-            @instance_reverse_keys[formatted_key] = key
-            results[formatted_key] = value
-          end
-          results
+        attributes.each do |key, value|
+          formatted_key = attribute_map.fetch(key) { key.to_s.gsub(/^C_/, '').underscore }
+          @instance_reverse_keys[formatted_key] = key
+          results[formatted_key] = value
         end
+        results
+      end
 
-        def reverse_map_attributes(attributes)
-          results = {}.with_indifferent_access
-          attributes.each do |key, value|
-            results[@instance_reverse_keys.fetch(key){key}] = value
-          end
-          results
+      def reverse_map_attributes(attributes)
+        results = {}.with_indifferent_access
+        attributes.each do |key, value|
+          results[@instance_reverse_keys.fetch(key){key}] = value
         end
-
+        results
       end
 
     end

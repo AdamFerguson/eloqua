@@ -31,7 +31,7 @@ module Eloqua
       delegate :builder_template, :to => Eloqua::Builder::Xml
       delegate :builder_templates, :to => Eloqua::Builder::Xml
 
-      attr_accessor :last_request, :last_response, :soap_error, :http_error
+      attr_accessor :last_response, :soap_error, :http_error
 
       @@clients = {}
 
@@ -73,7 +73,6 @@ module Eloqua
       def request(type, name, soap_body = nil, &block)
         result = send_remote_request(type, name, soap_body, &block)
 
-        self.last_request = client(type).soap.to_xml if client(type).soap
         self.last_response = result.to_xml if result.respond_to?(:to_xml)
 
         if(result)

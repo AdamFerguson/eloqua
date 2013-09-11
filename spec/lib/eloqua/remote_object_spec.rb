@@ -10,7 +10,7 @@ shared_examples_for 'remote operation that converts attribute values' do |operat
       attr_checkbox(:california)
     end
   end
-  
+
   context "when #{operation.to_s.pluralize} object" do
     it 'should convert value before saving' do
       if(operation == :update)
@@ -23,7 +23,6 @@ shared_examples_for 'remote operation that converts attribute values' do |operat
           with({'C_California1' => 'Yes'}).once
       end
 
-      
       object.california = true
       object.save
     end
@@ -32,7 +31,7 @@ shared_examples_for 'remote operation that converts attribute values' do |operat
 end
 
 shared_examples_for "class method delegates to set_callback" do |method, callback, state|
-  
+
   context "#self.#{method}" do
 
     it "should delegate to set_callback #{callback}, #{state}, &block" do
@@ -56,12 +55,12 @@ shared_examples_for "class method delegates to set_callback" do |method, callbac
 end
 
 describe Eloqua::RemoteObject do
-    
+
   subject do
     Class.new(Eloqua::RemoteObject) do
       self.remote_type = Eloqua::Api.remote_type('Contact')
       self.remote_group = :entity
-      
+
       attr_accessor :callbacks_called
       attr_accessor :test_callbacks
 
@@ -84,14 +83,14 @@ describe Eloqua::RemoteObject do
       def self.name
         'ContactEntity'
       end
-      
+
     end
   end
 
   let(:remote_type) do
     subject.api.remote_type('Contact')
   end
-    
+
   it_behaves_like 'uses attribute map'
   it_behaves_like 'class level delegation of remote operations for', :entity
 
@@ -105,7 +104,7 @@ describe Eloqua::RemoteObject do
   context "#self.remote_group" do
     specify { subject.remote_group.should == :entity }
   end
-  
+
 
   context "#initialize" do
 
@@ -142,9 +141,9 @@ describe Eloqua::RemoteObject do
         object = @class.new(input, :remote) # true is remote == true
         object.attributes.should == expected
       end
-      
 
-            
+
+
     end
 
 
@@ -174,76 +173,76 @@ describe Eloqua::RemoteObject do
   end
 
   context '#persisted?' do
-    
+
     it 'should be false when created with new' do
       subject.new.should_not be_persisted
     end
-    
+
     it 'should be true when initializing with id' do
       subject.new(:id => '1').should be_persisted
     end
-        
+
     context 'when initialized with :remote' do
       it 'should be considered persisted' do
         subject.new({:C_EmailAddress => 'email'}, :remote).should be_persisted
       end
     end
   end
-  
+
   context "#valid?" do
     let(:klass) do
       Class.new(subject) do
         map :C_EmailAddress => :email
         validates_presence_of :email
-        
+
         def self.name
           'Contact'
         end
-        
-      end      
+
+      end
     end
-    
+
     context 'when valid' do
-      
+
       before do
         @object = klass.new(:email => 'wow')
       end
-      
+
       it 'should be valid?' do
         @object.should be_valid
       end
-      
+
       it 'should not have any errors' do
         @object.valid?
         @object.errors[:email].should be_empty
       end
-      
+
     end
-    
+
     context 'when invalid' do
-      
+
       before do
         @object = klass.new()
         @results = @object.valid?
       end
-      
+
       it 'should be invalid?' do
         @object.should be_invalid
       end
-      
+
       it 'should have errors on :email' do
         @object.errors[:email].should_not be_empty
       end
-      
+
     end
-    
+
   end
-  
+
   context "#read_attribute" do
     let(:object) { subject.new(:email => 'address') }
     specify { object.read_attribute(:email).should == 'address' }
   end
-  
+
   context '#write_attribute' do
     let(:object) { subject.new(:email => 'address') }
 
@@ -252,105 +251,104 @@ describe Eloqua::RemoteObject do
       object.attributes[:email].should == 'test'
     end
   end
-  
+
   context "#is_attribute_method?" do
-    
+
     let(:object) { subject.new(:email => 'address') }
-    
+
     it 'should return true for writers' do
       object.is_attribute_method?(:email=).should == :write
     end
-    
+
     it 'should return true for readers' do
       object.is_attribute_method?(:email).should == :read
     end
-    
+
     it 'should not return true for missing attrs' do
       object.attributes.delete(:email)
       object.is_attribute_method?(:email).should be_false
     end
-    
+
   end
 
   context "when calling attribute method without concrete definition" do
-    
+
     let(:klass) do
       Class.new(subject) do
         map :C_EmailAddress => 'email'
       end
     end
-    
+
 
     let(:object) do
       klass.new({:C_EmailAddress => 'james@lightsofapollo.com'}, :remote)
     end
-    
+
     specify { object.respond_to?(:email) }
     specify { object.respond_to?(:email=) }
-    
+
     it 'should allow us to access attributes via accessors (email)' do
       object.email.should == 'james@lightsofapollo.com'
     end
-    
+
     it 'should allow us to alter email via email=' do
       object.email = 'newemail'
       object.email.should == 'newemail'
       object.attributes[:email].should == 'newemail'
     end
-    
+
     context 'when initalizing empty object' do
       let(:object) { klass.new }
-      
+
       it 'should respond to mapped attribute email' do
         object.respond_to?(:email).should be_true
       end
-      
+
       it 'should allow us to set and read attribute' do
         object.email = 'email'
         object.email.should == 'email'
       end
-      
+
     end
-  
+
   end
-  
+
   context 'dirty attributes' do
-    
+
     let(:klass) do
       Class.new(subject) do
         map :C_EmailAddress => :email
       end
     end
-    
+
     let(:object) do
       klass.new
     end
-    
+
     it 'should call attribute_will_change! when using attribute_write' do
       flexmock(object).should_receive(:attribute_will_change!).with("email").once
       object.email = 'email'
     end
-    
+
     context 'when email has changed' do
       before do
         object.email = 'old'
-        object.email = 'new'
       end
-      
+
       it 'should have old value available via attribute_was' do
-        object.attribute_was(:email).should == 'old'
+        object.attribute_was(:email).should == nil
       end
 
       it 'should have old and new value available via attribue_change' do
-        object.attribute_change(:email).should == ['old', 'new']
+        object.attribute_change(:email).should == [nil, 'old']
       end
-      
+
       it 'should provide a list of all changed attributes via changed' do
         object.changed.should == ['email']
       end
     end
   end
-  
+
   context "when persisting object" do
     let(:input) do
       {:email => 'email', :name => 'first'}
@@ -361,7 +359,7 @@ describe Eloqua::RemoteObject do
         map :C_EmailAddress => :email
         map :C_FirstName => :name
         map :ContactID => :id
-        
+
         validates_presence_of :email
       end
     end
@@ -375,9 +373,9 @@ describe Eloqua::RemoteObject do
       }.with_indifferent_access
     end
 
-    
+
     it_behaves_like 'remote operation that converts attribute values', :update
-    
+
 
     context "#update" do
 
@@ -387,7 +385,7 @@ describe Eloqua::RemoteObject do
 
         object.email = 'email'
         object.name = 'first'
-        
+
         @result = object.update
       end
 
@@ -401,19 +399,19 @@ describe Eloqua::RemoteObject do
 
       specify { object.email.should == 'email' }
       specify { object.name.should == 'first' }
-    end    
-   
-    
+    end
+
+
     it_behaves_like 'remote operation that converts attribute values', :create 
 
     context "#create" do
       context "when successfully creating record" do
         let(:object) { klass.new }
-        
+
         before do
           flexmock(klass).should_receive(:create_object).\
                              with(expected).and_return({:id => 1})
-                              
+
           object.email = 'email'
           object.name = 'first'
           @result = object.create
@@ -432,25 +430,25 @@ describe Eloqua::RemoteObject do
         specify { object.name.should == 'first' }
       end
     end
-    
+
     context "#save" do
-            
+
       context 'when save will create' do
         let(:object) do
           klass.new(:email => 'james@lightsofapollo.com')
         end
-        
+
         before do
           flexmock(klass).should_receive(:create_object).\
                              with({'C_EmailAddress' => 'james@lightsofapollo.com'}).\
                              and_return({:id => 1}).once
           object.save
         end
-        
+
         it 'should now be persisted?' do
           object.should be_persisted
         end
-        
+
         it 'should now have an id' do
           object.id.should == 1
         end
@@ -458,15 +456,15 @@ describe Eloqua::RemoteObject do
         it "should call before and after callbacks" do
           object.callbacks_called[:save].should == [:before, :after]
         end
-        
+
       end
-      
+
       context 'when save will update' do
-        
+
         let(:object) do
           klass.new(:id => 1, :email => 'james@lightsofapollo.com')
         end
-        
+
         before do
           flexmock(klass).should_receive(:update_object).\
                              with(1, {'C_EmailAddress' => 'new'}).\
@@ -475,19 +473,19 @@ describe Eloqua::RemoteObject do
           object.email = 'new'
           object.save
         end
-        
+
         it 'should now be persisted?' do
           object.should be_persisted
         end
-        
+
         it 'should have updated email address to "new"' do
           object.email.should == 'new'
         end
-                
+
       end
-      
+
       context "when record is invalid" do
-        
+
         let(:object) do
           klass.new(:id => 1)
         end
@@ -495,29 +493,28 @@ describe Eloqua::RemoteObject do
         it "should not have called any callbacks" do
           object.callbacks_called.should be_nil
         end
-        
+
         it 'should not be valid' do
           object.should_not be_valid
         end
-        
+
         it 'should return false when saving' do
           object.save.should be_false
         end
-        
+
       end
-      
-    end    
-    
+
+    end
+
     context "#update_attributes" do
-      
-      context "when successfuly updating the record and ignoring sanitization" do
+
+      context "when successfuly updating the record" do
         let(:klass) do
           Class.new(subject) do
             map :C_EmailAddress => :email
             map :C_FirstName => :name
             map :ContactID => :id
 
-            attr_accessible :email
           end
         end
 
@@ -531,7 +528,7 @@ describe Eloqua::RemoteObject do
           @result = object.update_attributes({
             :email => 'new',
             :name => 'gomez'
-          }, true)      
+          })
         end
 
         it 'should call update entity to make the api call' do
@@ -539,7 +536,7 @@ describe Eloqua::RemoteObject do
         end
 
         specify { object.email.should == 'new' }
-        specify { object.name.should == 'gomez' } 
+        specify { object.name.should == 'gomez' }
 
       end
 
@@ -550,7 +547,6 @@ describe Eloqua::RemoteObject do
             map :C_FirstName => :name
             map :ContactID => :id
 
-            attr_accessible :email
           end
         end
 
@@ -560,13 +556,17 @@ describe Eloqua::RemoteObject do
           {
             :email => 'email',
           }.with_indifferent_access
-        end      
+        end
 
         before do
-          flexmock(klass).should_receive(:update_object).\
-                             with(1, {'C_EmailAddress' => 'email'}).and_return(true)
+          # flexmock(klass).should_receive(:update_object).\
+          #                    with(1, {'C_EmailAddress' => 'email'}).and_return(true)
 
-          @result = object.update_attributes(input)      
+          flexmock(klass).should_receive(:update_object).\
+                             with(1, {'C_EmailAddress' => 'email', 'C_FirstName' => 'first'}).\
+                             and_return(true)
+
+          @result = object.update_attributes(input)
         end
 
         it 'should call update entity to make the api call' do
@@ -574,38 +574,38 @@ describe Eloqua::RemoteObject do
         end
 
         specify { object.email.should == 'email' }
-        specify { object.name.should == 'james' }        
-        
+        specify { object.name.should == 'first' }
+
       end
-      
-      
+
+
       context 'when updating attributes of invalid object' do
-        
+
         let(:input) do
           {}
         end
-        
+
         let(:object) { klass.new }
-        
+
         before do
           flexmock(object).should_receive(:create).never
           flexmock(object).should_receive(:update).never
         end
-        
+
         it 'should be invalid' do
           object.should_not be_valid
         end
-        
+
         it 'should return false' do
           object = klass.new
           object.update_attributes(input).should be_false
         end
-        
+
       end
-      
+
     end
-        
-    
+
+
   end
 
 
@@ -650,7 +650,7 @@ describe Eloqua::RemoteObject do
         attrs = object.convert_attribute_values(object.attributes, :export)
         attrs[:california].should === 'Yes'
       end
- 
+
     end
 
   end
@@ -712,21 +712,21 @@ describe Eloqua::RemoteObject do
       subject.primary_key.should == 'id'
     end
   end
-  
+
   context '#self.eloqua_attribute' do
-    
+
     before do
       @class = Class.new(subject) do
         map :C_EmailAddress => :email
       end
     end
-    
+
     it 'should return eloqua name "C_EmailAddress"' do
       @class.eloqua_attribute(:email).should == 'C_EmailAddress'
     end
 
   end
-    
+
   context "#self.api" do
     it 'should have api on the class level' do
       subject.api.should == Eloqua::Api::Service

@@ -11,6 +11,7 @@ require 'rspec'
 require 'timecop'
 require 'eloqua'
 require 'savon_spec'
+require 'pry'
 
 unless defined?(ELOQUA_LIB)
   ELOQUA_LIB = File.dirname(__FILE__) + '/../lib'

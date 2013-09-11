@@ -1,18 +1,19 @@
 module Eloqua
   module RSpec
     module Helper
-      
+
       def soap_fixture(type, name, code = 200, headers = {})
+        config = Savon::Config.default
         body = Savon::Spec::Fixture.load(type, name)
         httpi = HTTPI::Response.new(code, headers, body)
-        Savon::SOAP::Response.new(httpi)
+        Savon::SOAP::Response.new(config, httpi)
       end
 
       def mock_eloqua_request(type, name, code = 200, headers = {})
         mock = soap_fixture(type, name, code, headers)
         flexmock(Eloqua::Api).should_receive(:send_remote_request).and_return(mock)
       end
-      
+
       def mock_response(type, name, code = 200, headers = {})
         body = Savon::Spec::Fixture.load(type, name)
         mock = HTTPI::Response.new(code, headers, body)
@@ -26,7 +27,7 @@ module Eloqua
         if(mocked_object.respond_to?(:api))
           mocked_object = mocked_object.api
         end
-        
+
         if(!xml_body && !result)
           # No with expectation
           result = method
@@ -39,7 +40,7 @@ module Eloqua
                               and_return(result).once      
         end
       end
-      
+
       def xml!(&block)
         Eloqua::Api.builder(&block)
       end
@@ -47,7 +48,7 @@ module Eloqua
       def group_name
         (respond_to?(:remote_group))? remote_group : group
       end
-      
+
       def remote_type
         "#{group_name}Type"
       end
@@ -66,8 +67,8 @@ module Eloqua
         else
           ("#{method}_#{group_name}").to_sym
         end
-      end 
-      
+      end
+
     end
   end
 end
