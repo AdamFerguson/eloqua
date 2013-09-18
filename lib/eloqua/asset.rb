@@ -1,9 +1,9 @@
 require 'eloqua/remote_object'
 
 module Eloqua
-  
+
   class Asset < RemoteObject
-    
+
     self.remote_group = :asset
 
     def add_member(entity)
@@ -13,7 +13,7 @@ module Eloqua
     def remove_member(entity)
       member_operation(:remove_group_member, entity)
     end
-    
+
     private
 
     def member_operation(method, entity)
@@ -27,5 +27,5 @@ module Eloqua
     end
 
   end
-  
+
 end

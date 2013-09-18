@@ -29,7 +29,7 @@ module Eloqua
             xml.tag!(:pageNumber, pageNumber)
             xml.tag!(:pageSize, pageSize)
           end
-          results = request(:list_members_in_step_by_status, xml_query)
+          request(:list_members_in_step_by_status, xml_query)
         end
 
         def set_member_status(arrayOfMember, status)
@@ -39,7 +39,7 @@ module Eloqua
             end
             xml.tag!(:status, status)
           end
-          results = request(:set_member_status, xml_query)
+          request(:set_member_status, xml_query)
         end
 
         def request(*args)

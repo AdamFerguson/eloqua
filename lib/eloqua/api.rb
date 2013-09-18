@@ -58,7 +58,9 @@ module Eloqua
           globals.namespaces({"xmlns:arr" => XML_NS_ARRAY})
           globals.element_form_default :qualified
           globals.wsse_auth [Eloqua.user, Eloqua.password]
-          globals.log false
+          globals.log true
+          globals.log_level :debug
+          globals.ssl_verify_mode :none
           instance_eval(&block) if block_given?
         end
       end
@@ -99,7 +101,8 @@ module Eloqua
         @soap_error = nil
         @http_error = nil
 
-        response = client(type, &block).call(name, message: soap_body)
+        soap_client = client(type, &block)
+        response = soap_client.call(name, message: soap_body)
 
         response_errors(response)
         response

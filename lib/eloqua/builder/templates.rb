@@ -26,6 +26,5 @@ module Eloqua
 
     end
 
-
   end
 end

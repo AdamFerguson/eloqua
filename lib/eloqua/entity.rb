@@ -1,13 +1,13 @@
 require 'eloqua/remote_object'
 
 module Eloqua
-  
+
   class Entity < RemoteObject
-    
+
     self.remote_group = :entity
 
     # Returns an :id indexed list of memberships for contact
-    # 
+    #
     #     # Example output
     #     {'1' => {:id => '1', :name => 'Contact Group Name', :type => 'ContactGroup}}
     #
@@ -27,7 +27,7 @@ module Eloqua
     class << self
 
       # Returns an :id indexed list of memberships for given contact id
-      # 
+      #
       #     # Example output
       #     {'1' => {:id => '1', :name => 'Contact Group Name', :type => 'ContactGroup}}
       #
@@ -44,7 +44,7 @@ module Eloqua
         else
           memberships || {}
         end
-          
+
       end
 
       def where(conditions = nil, fields = [], limit = 200, page = 1)
@@ -65,8 +65,8 @@ module Eloqua
 				else
 					Eloqua::Query.new(self)
 				end
-      end      
+      end
     end
-    
+
   end
 end
